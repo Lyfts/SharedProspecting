@@ -1,4 +1,4 @@
-package com.myname.mymodid;
+package com.rune580.sharedprospecting;
 
 import java.io.File;
 

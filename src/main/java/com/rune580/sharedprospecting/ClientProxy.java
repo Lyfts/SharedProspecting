@@ -1,4 +1,4 @@
-package com.myname.mymodid;
+package com.rune580.sharedprospecting;
 
 public class ClientProxy extends CommonProxy {
 
