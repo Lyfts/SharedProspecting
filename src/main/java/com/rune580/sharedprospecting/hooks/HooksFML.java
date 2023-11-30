@@ -3,6 +3,8 @@ package com.rune580.sharedprospecting.hooks;
 import net.minecraft.entity.player.EntityPlayerMP;
 
 import com.rune580.sharedprospecting.SharedProspectingMod;
+import com.rune580.sharedprospecting.database.TeamCache;
+import com.rune580.sharedprospecting.database.TeamsCache;
 import com.rune580.sharedprospecting.networking.SPNetwork;
 import com.rune580.sharedprospecting.networking.SyncMsg;
 import com.rune580.sharedprospecting.worker.TickWorker;
@@ -18,6 +20,9 @@ public class HooksFML {
     @SubscribeEvent(priority = EventPriority.LOW)
     public void onPlayerLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {
         if (!(event.player instanceof EntityPlayerMP player)) return;
+
+        TeamCache teamCache = TeamsCache.instance.getByPlayer(player);
+        if (teamCache == null) return;
 
         SyncMsg packet = new SyncMsg();
         packet.setStartSync(true);
