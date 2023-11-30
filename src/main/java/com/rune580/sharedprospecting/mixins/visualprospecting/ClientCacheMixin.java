@@ -12,6 +12,6 @@ public abstract class ClientCacheMixin extends WorldCache implements IClientCach
     @Unique
     @Override
     public boolean sharedProspecting$getIsLoaded() {
-        return ((WorldCacheAccessor)(WorldCache)this).getIsLoaded();
+        return ((WorldCacheAccessor) this).getIsLoaded();
     }
 }

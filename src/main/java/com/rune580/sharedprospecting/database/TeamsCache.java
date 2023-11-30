@@ -1,15 +1,11 @@
 package com.rune580.sharedprospecting.database;
 
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
-import serverutils.lib.EnumTeamStatus;
-import serverutils.lib.data.ForgePlayer;
 import serverutils.lib.data.ForgeTeam;
 
 import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 public class TeamsCache {
 

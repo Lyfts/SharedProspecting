@@ -20,6 +20,7 @@ public class HooksEventBus {
         ClientSyncBatchWork.instance.addOreVein(event.getPosition());
     }
 
+    @SubscribeEvent
     public void OnProspectingFluidNotificationEvent(ProspectingNotificationEvent.UndergroundFluid event) {
         ClientSyncBatchWork.instance.addUndergroundFluid(event.getPosition());
     }
