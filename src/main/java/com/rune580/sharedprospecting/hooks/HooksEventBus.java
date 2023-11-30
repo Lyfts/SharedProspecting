@@ -2,6 +2,7 @@ package com.rune580.sharedprospecting.hooks;
 
 import com.rune580.sharedprospecting.SharedProspectingMod;
 import com.rune580.sharedprospecting.database.TeamsCache;
+import com.rune580.sharedprospecting.worker.batch.ClientSyncBatchWork;
 import com.sinthoras.visualprospecting.database.WorldIdHandler;
 import com.sinthoras.visualprospecting.hooks.ProspectingNotificationEvent;
 
@@ -15,8 +16,12 @@ import serverutils.lib.data.ForgeTeam;
 
 public class HooksEventBus {
     @SubscribeEvent
-    public void onProspectingNotificationEvent(ProspectingNotificationEvent.OreVein event) {
-        SharedProspectingMod.LOG.warn("Did this even work?, {}", event);
+    public void onProspectingOreNotificationEvent(ProspectingNotificationEvent.OreVein event) {
+        ClientSyncBatchWork.instance.addOreVein(event.getPosition());
+    }
+
+    public void OnProspectingFluidNotificationEvent(ProspectingNotificationEvent.UndergroundFluid event) {
+        ClientSyncBatchWork.instance.addUndergroundFluid(event.getPosition());
     }
 
     @SubscribeEvent

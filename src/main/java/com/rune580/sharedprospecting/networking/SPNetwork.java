@@ -7,6 +7,8 @@ import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
 import cpw.mods.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import cpw.mods.fml.relauncher.Side;
 import net.minecraft.entity.player.EntityPlayerMP;
+import org.jetbrains.annotations.NotNull;
+import serverutils.lib.data.ForgeTeam;
 
 public class SPNetwork {
     private static SimpleNetworkWrapper networkWrapper;
@@ -27,5 +29,11 @@ public class SPNetwork {
 
     public static void sendToServer(IMessage message) {
         networkWrapper.sendToServer(message);
+    }
+
+    public static void sendToTeamMembers(IMessage message, @NotNull ForgeTeam team) {
+        for (EntityPlayerMP member : team.getOnlineMembers()) {
+            sendToPlayer(message, member);
+        }
     }
 }

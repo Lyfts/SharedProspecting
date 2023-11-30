@@ -1,5 +1,6 @@
 package com.rune580.sharedprospecting.hooks;
 
+import com.rune580.sharedprospecting.SharedProspectingMod;
 import com.rune580.sharedprospecting.networking.SPNetwork;
 import com.rune580.sharedprospecting.networking.SyncMsg;
 import com.rune580.sharedprospecting.worker.TickWorker;
@@ -29,5 +30,6 @@ public class HooksFML {
     @SubscribeEvent
     public void onTick(TickEvent event) {
         TickWorker.instance.onTick();
+        SharedProspectingMod.proxy.batchWorker.onTick();
     }
 }

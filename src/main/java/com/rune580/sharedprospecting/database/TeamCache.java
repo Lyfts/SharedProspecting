@@ -3,6 +3,7 @@ package com.rune580.sharedprospecting.database;
 import com.rune580.sharedprospecting.SharedProspectingMod;
 import com.rune580.sharedprospecting.Tags;
 import com.rune580.sharedprospecting.utils.FsUtils;
+import com.rune580.sharedprospecting.worker.batch.TeamSyncBatchWorker;
 import com.sinthoras.visualprospecting.database.DimensionCache;
 import com.sinthoras.visualprospecting.database.OreVeinPosition;
 import com.sinthoras.visualprospecting.database.UndergroundFluidPosition;
@@ -44,15 +45,29 @@ public class TeamCache extends WorldCache {
     }
 
     public void addOreVeins(List<OreVeinPosition> oreVeins) {
+        List<OreVeinPosition> modified = new ArrayList<>();
+
         for (OreVeinPosition oreVein : oreVeins) {
-            putOreVein(oreVein);
+            if (putOreVein(oreVein) == DimensionCache.UpdateResult.AlreadyKnown)
+                continue;
+
+            modified.add(oreVein);
         }
+
+        TeamSyncBatchWorker.instance.addOreVeins(team, modified);
     }
 
-    public void addUndergroundFluids(List<UndergroundFluidPosition> undergroundFluidPositions) {
-        for (UndergroundFluidPosition fluidPosition : undergroundFluidPositions) {
-            putUndergroundFluids(fluidPosition);
+    public void addUndergroundFluids(List<UndergroundFluidPosition> undergroundFluids) {
+        List<UndergroundFluidPosition> modified = new ArrayList<>();
+
+        for (UndergroundFluidPosition fluidPosition : undergroundFluids) {
+            if (putUndergroundFluids(fluidPosition) == DimensionCache.UpdateResult.AlreadyKnown)
+                continue;
+
+            modified.add(fluidPosition);
         }
+
+        TeamSyncBatchWorker.instance.addUndergroundFluids(team, modified);
     }
 
     public List<OreVeinPosition> getAllOreVeins() {

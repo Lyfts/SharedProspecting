@@ -7,7 +7,7 @@ import org.apache.logging.log4j.Logger;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.SidedProxy;
 
-@Mod(modid = Tokens.MODID, version = Tokens.VERSION, name = Tokens.MODNAME, acceptedMinecraftVersions = "[1.7.10]")
+@Mod(modid = Tokens.MODID, version = Tokens.VERSION, name = Tokens.MODNAME, acceptedMinecraftVersions = "[1.7.10]", dependencies = "required-after:visualprospecting;required-after:serverutilities")
 public class SharedProspectingMod {
 
     public static final Logger LOG = LogManager.getLogger(Tokens.MODID);

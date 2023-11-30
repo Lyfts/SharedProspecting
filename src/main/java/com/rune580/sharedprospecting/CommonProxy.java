@@ -6,6 +6,8 @@ import com.rune580.sharedprospecting.hooks.HooksFML;
 import com.rune580.sharedprospecting.networking.ProspectionSyncMsg;
 import com.rune580.sharedprospecting.networking.SPNetwork;
 import com.rune580.sharedprospecting.networking.SyncMsg;
+import com.rune580.sharedprospecting.worker.batch.BatchWorker;
+import com.rune580.sharedprospecting.worker.batch.TeamSyncBatchWorker;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.event.*;
 import cpw.mods.fml.relauncher.Side;
@@ -13,8 +15,8 @@ import net.minecraftforge.common.MinecraftForge;
 
 public class CommonProxy {
 
-    // preInit "Run before anything else. Read your config, create blocks, items, etc, and register them with the
-    // GameRegistry." (Remove if not needed)
+    public BatchWorker batchWorker;
+
     public void preInit(FMLPreInitializationEvent event) {
         Config.synchronizeConfiguration(event.getSuggestedConfigurationFile());
 
@@ -25,6 +27,9 @@ public class CommonProxy {
         SPNetwork.registerMessage(ProspectionSyncMsg.ClientHandler.class, ProspectionSyncMsg.class, Side.CLIENT);
         SPNetwork.registerMessage(SyncMsg.ServerHandler.class, SyncMsg.class, Side.SERVER);
         SPNetwork.registerMessage(SyncMsg.ClientHandler.class, SyncMsg.class, Side.CLIENT);
+
+        batchWorker = new BatchWorker();
+        batchWorker.addBatchWork(new TeamSyncBatchWorker());
     }
 
     // load "Do your mod setup. Build whatever data structures you care about. Register recipes." (Remove if not needed)

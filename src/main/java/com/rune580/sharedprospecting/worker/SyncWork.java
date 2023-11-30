@@ -1,7 +1,5 @@
 package com.rune580.sharedprospecting.worker;
 
-import com.rune580.sharedprospecting.networking.ProspectionSyncMsg;
-import com.rune580.sharedprospecting.networking.SPNetwork;
 import com.sinthoras.visualprospecting.database.OreVeinPosition;
 import com.sinthoras.visualprospecting.database.UndergroundFluidPosition;
 
