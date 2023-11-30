@@ -6,7 +6,7 @@
 		"description": "Syncs VisualProspecting data between members in a ServerUtilities Team.",
 		"version": "${modVersion}",
 		"mcversion": "${minecraftVersion}",
-		"url": "https://github.com/SinTh0r4s/MyMod",
+		"url": "https://github.com/Rune580/SharedProspecting",
 		"updateUrl": "",
 		"authorList": ["Rune580"],
 		"credits": "",
