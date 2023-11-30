@@ -34,4 +34,13 @@
  * For more details, see https://docs.gradle.org/8.0.1/userguide/java_library_plugin.html#sec:java_library_configurations_graph
  */
 dependencies {
+    api("com.github.GTNewHorizons:ServerUtilities:2.0.2")
+
+    api("com.github.GTNewHorizons:VisualProspecting:1.1.13") {
+        exclude module: "TCNodeTracker"
+    }
+
+    // debugging
+    runtimeOnlyNonPublishable("com.github.GTNewHorizons:IFU:1.9.6")
+    runtimeOnlyNonPublishable('com.github.GTNewHorizons:DetravScannerMod:1.7.2:dev')
 }
