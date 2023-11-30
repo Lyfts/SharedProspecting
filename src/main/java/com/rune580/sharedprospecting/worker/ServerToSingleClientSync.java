@@ -1,15 +1,17 @@
 package com.rune580.sharedprospecting.worker;
 
+import java.util.ArrayList;
+
+import net.minecraft.entity.player.EntityPlayerMP;
+
 import com.rune580.sharedprospecting.SharedProspectingMod;
 import com.rune580.sharedprospecting.database.TeamCache;
 import com.rune580.sharedprospecting.database.TeamsCache;
 import com.rune580.sharedprospecting.networking.ProspectionSyncMsg;
 import com.rune580.sharedprospecting.networking.SPNetwork;
-import net.minecraft.entity.player.EntityPlayerMP;
-
-import java.util.ArrayList;
 
 public class ServerToSingleClientSync extends SyncWork {
+
     private EntityPlayerMP target;
 
     public ServerToSingleClientSync(EntityPlayerMP player) {
@@ -36,10 +38,12 @@ public class ServerToSingleClientSync extends SyncWork {
         final ProspectionSyncMsg packet = new ProspectionSyncMsg();
 
         final int oresConsumed = packet.addOreVeins(oreVeins);
-        oreVeins.subList(0, oresConsumed).clear();
+        oreVeins.subList(0, oresConsumed)
+            .clear();
 
         final int fluidsConsumed = packet.addUndergroundFluids(undergroundFluids);
-        undergroundFluids.subList(0, fluidsConsumed).clear();
+        undergroundFluids.subList(0, fluidsConsumed)
+            .clear();
 
         SPNetwork.sendToPlayer(packet, target);
     }

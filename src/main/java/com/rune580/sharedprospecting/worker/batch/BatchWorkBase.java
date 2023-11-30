@@ -1,6 +1,7 @@
 package com.rune580.sharedprospecting.worker.batch;
 
 public abstract class BatchWorkBase implements IBatchWork {
+
     private final long timer;
     private long lastTs;
 

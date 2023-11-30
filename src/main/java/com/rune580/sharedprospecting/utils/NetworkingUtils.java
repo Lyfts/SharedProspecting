@@ -1,16 +1,18 @@
 package com.rune580.sharedprospecting.utils;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import net.minecraftforge.fluids.Fluid;
+import net.minecraftforge.fluids.FluidRegistry;
+
 import com.sinthoras.visualprospecting.VP;
 import com.sinthoras.visualprospecting.database.OreVeinPosition;
 import com.sinthoras.visualprospecting.database.UndergroundFluidPosition;
 import com.sinthoras.visualprospecting.database.veintypes.VeinTypeCaching;
+
 import cpw.mods.fml.common.network.ByteBufUtils;
 import io.netty.buffer.ByteBuf;
-import net.minecraftforge.fluids.Fluid;
-import net.minecraftforge.fluids.FluidRegistry;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public final class NetworkingUtils {
 
@@ -77,7 +79,8 @@ public final class NetworkingUtils {
         return oreVeinPositions;
     }
 
-    public static void WriteUndergroundFluidPositions(ByteBuf buf, List<UndergroundFluidPosition> undergroundFluidPositions) {
+    public static void WriteUndergroundFluidPositions(ByteBuf buf,
+        List<UndergroundFluidPosition> undergroundFluidPositions) {
         buf.writeInt(undergroundFluidPositions.size());
         for (UndergroundFluidPosition undergroundFluidPosition : undergroundFluidPositions) {
             WriteUndergroundFluidPosition(buf, undergroundFluidPosition);

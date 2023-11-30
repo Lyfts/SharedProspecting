@@ -1,5 +1,8 @@
 package com.rune580.sharedprospecting.hooks;
 
+import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraftforge.event.world.WorldEvent;
+
 import com.rune580.sharedprospecting.SharedProspectingMod;
 import com.rune580.sharedprospecting.database.TeamsCache;
 import com.rune580.sharedprospecting.networking.SPNetwork;
@@ -9,8 +12,6 @@ import com.sinthoras.visualprospecting.database.WorldIdHandler;
 import com.sinthoras.visualprospecting.hooks.ProspectingNotificationEvent;
 
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
-import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraftforge.event.world.WorldEvent;
 import serverutils.events.team.ForgeTeamCreatedEvent;
 import serverutils.events.team.ForgeTeamDeletedEvent;
 import serverutils.events.team.ForgeTeamLoadedEvent;
@@ -18,6 +19,7 @@ import serverutils.events.team.ForgeTeamPlayerJoinedEvent;
 import serverutils.lib.data.ForgeTeam;
 
 public class HooksEventBus {
+
     @SubscribeEvent
     public void onProspectingOreNotificationEvent(ProspectingNotificationEvent.OreVein event) {
         ClientSyncBatchWork.instance.addOreVein(event.getPosition());
@@ -56,9 +58,11 @@ public class HooksEventBus {
 
     @SubscribeEvent
     public void onTeamPlayerJoined(ForgeTeamPlayerJoinedEvent event) {
-        EntityPlayerMP player =  event.getPlayer().getPlayer();
+        EntityPlayerMP player = event.getPlayer()
+            .getPlayer();
         ForgeTeam team = event.getTeam();
-        SharedProspectingMod.LOG.info("Player {} joined Team {}, syncing data", player.getDisplayName(), team.getUIDCode());
+        SharedProspectingMod.LOG
+            .info("Player {} joined Team {}, syncing data", player.getDisplayName(), team.getUIDCode());
 
         SyncMsg packet = new SyncMsg();
         packet.setStartSync(true);

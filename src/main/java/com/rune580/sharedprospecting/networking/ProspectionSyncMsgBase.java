@@ -1,16 +1,18 @@
 package com.rune580.sharedprospecting.networking;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.rune580.sharedprospecting.Config;
 import com.rune580.sharedprospecting.utils.NetworkingUtils;
 import com.sinthoras.visualprospecting.database.OreVeinPosition;
 import com.sinthoras.visualprospecting.database.UndergroundFluidPosition;
+
 import cpw.mods.fml.common.network.simpleimpl.IMessage;
 import io.netty.buffer.ByteBuf;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public abstract class ProspectionSyncMsgBase implements IMessage {
+
     protected final List<OreVeinPosition> oreVeins = new ArrayList<>();
     protected final List<UndergroundFluidPosition> undergroundFluids = new ArrayList<>();
     private int byteSize;

@@ -7,6 +7,7 @@ import com.rune580.sharedprospecting.networking.SyncMsg;
 import com.sinthoras.visualprospecting.database.ClientCache;
 
 public class ClientToServerFullSync extends SyncWork {
+
     public ClientToServerFullSync() {
         oreVeins = ClientCache.instance.getAllOreVeins();
         undergroundFluids = ClientCache.instance.getAllUndergroundFluids();
@@ -19,10 +20,12 @@ public class ClientToServerFullSync extends SyncWork {
         final ProspectionSyncMsg packet = new ProspectionSyncMsg();
 
         final int oresConsumed = packet.addOreVeins(oreVeins);
-        oreVeins.subList(0, oresConsumed).clear();
+        oreVeins.subList(0, oresConsumed)
+            .clear();
 
         final int fluidsConsumed = packet.addUndergroundFluids(undergroundFluids);
-        undergroundFluids.subList(0, fluidsConsumed).clear();
+        undergroundFluids.subList(0, fluidsConsumed)
+            .clear();
 
         SPNetwork.sendToServer(packet);
     }

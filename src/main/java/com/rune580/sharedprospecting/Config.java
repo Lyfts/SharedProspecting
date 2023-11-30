@@ -11,7 +11,13 @@ public class Config {
     public static void synchronizeConfiguration(File configFile) {
         Configuration configuration = new Configuration(configFile);
 
-        maxSyncPacketSizeInBytes = configuration.getInt("MaxSyncPacketSizeInBytes", Configuration.CATEGORY_GENERAL, maxSyncPacketSizeInBytes, 1000, 30000, "");
+        maxSyncPacketSizeInBytes = configuration.getInt(
+            "MaxSyncPacketSizeInBytes",
+            Configuration.CATEGORY_GENERAL,
+            maxSyncPacketSizeInBytes,
+            1000,
+            30000,
+            "");
 
         if (configuration.hasChanged()) {
             configuration.save();

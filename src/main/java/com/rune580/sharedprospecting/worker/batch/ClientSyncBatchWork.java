@@ -1,12 +1,12 @@
 package com.rune580.sharedprospecting.worker.batch;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.rune580.sharedprospecting.networking.ProspectionSyncMsg;
 import com.rune580.sharedprospecting.networking.SPNetwork;
 import com.sinthoras.visualprospecting.database.OreVeinPosition;
 import com.sinthoras.visualprospecting.database.UndergroundFluidPosition;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class ClientSyncBatchWork extends BatchWorkBase {
 
@@ -33,10 +33,12 @@ public class ClientSyncBatchWork extends BatchWorkBase {
         final ProspectionSyncMsg packet = new ProspectionSyncMsg();
 
         final int oresConsumed = packet.addOreVeins(oreVeins);
-        oreVeins.subList(0, oresConsumed).clear();
+        oreVeins.subList(0, oresConsumed)
+            .clear();
 
         final int fluidsConsumed = packet.addUndergroundFluids(undergroundFluids);
-        undergroundFluids.subList(0, fluidsConsumed).clear();
+        undergroundFluids.subList(0, fluidsConsumed)
+            .clear();
 
         SPNetwork.sendToServer(packet);
     }

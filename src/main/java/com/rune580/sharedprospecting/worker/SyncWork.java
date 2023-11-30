@@ -1,11 +1,12 @@
 package com.rune580.sharedprospecting.worker;
 
+import java.util.List;
+
 import com.sinthoras.visualprospecting.database.OreVeinPosition;
 import com.sinthoras.visualprospecting.database.UndergroundFluidPosition;
 
-import java.util.List;
-
 public abstract class SyncWork implements IWork {
+
     protected List<OreVeinPosition> oreVeins;
     protected List<UndergroundFluidPosition> undergroundFluids;
     private long lastTimestamp;
@@ -24,8 +25,7 @@ public abstract class SyncWork implements IWork {
         }
 
         boolean finished = workFinished();
-        if (finished)
-            onFinished();
+        if (finished) onFinished();
 
         return finished;
     }

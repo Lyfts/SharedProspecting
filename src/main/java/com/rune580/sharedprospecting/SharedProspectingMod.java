@@ -1,18 +1,25 @@
 package com.rune580.sharedprospecting;
 
-import cpw.mods.fml.common.event.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.SidedProxy;
+import cpw.mods.fml.common.event.*;
 
-@Mod(modid = Tokens.MODID, version = Tokens.VERSION, name = Tokens.MODNAME, acceptedMinecraftVersions = "[1.7.10]", dependencies = "required-after:visualprospecting;required-after:serverutilities")
+@Mod(
+    modid = Tokens.MODID,
+    version = Tokens.VERSION,
+    name = Tokens.MODNAME,
+    acceptedMinecraftVersions = "[1.7.10]",
+    dependencies = "required-after:visualprospecting;required-after:serverutilities")
 public class SharedProspectingMod {
 
     public static final Logger LOG = LogManager.getLogger(Tokens.MODID);
 
-    @SidedProxy(clientSide = "com.rune580.sharedprospecting.ClientProxy", serverSide = "com.rune580.sharedprospecting.CommonProxy")
+    @SidedProxy(
+        clientSide = "com.rune580.sharedprospecting.ClientProxy",
+        serverSide = "com.rune580.sharedprospecting.CommonProxy")
     public static CommonProxy proxy;
 
     @Mod.EventHandler

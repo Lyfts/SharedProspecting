@@ -4,11 +4,11 @@ import com.rune580.sharedprospecting.mixinaccess.visualprospecting.IClientCacheM
 import com.sinthoras.visualprospecting.database.ClientCache;
 
 public class WaitUntilClientCacheHasLoaded implements IWork {
+
     private final IClientCacheMixin cache;
 
-
     public WaitUntilClientCacheHasLoaded() {
-        cache = (IClientCacheMixin)ClientCache.instance;
+        cache = (IClientCacheMixin) ClientCache.instance;
     }
 
     @Override

@@ -1,15 +1,16 @@
 package com.rune580.sharedprospecting.worker.batch;
 
-import com.rune580.sharedprospecting.networking.ProspectionSyncMsg;
-import com.rune580.sharedprospecting.networking.SPNetwork;
-import com.sinthoras.visualprospecting.database.OreVeinPosition;
-import com.sinthoras.visualprospecting.database.UndergroundFluidPosition;
-import serverutils.lib.data.ForgeTeam;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import com.rune580.sharedprospecting.networking.ProspectionSyncMsg;
+import com.rune580.sharedprospecting.networking.SPNetwork;
+import com.sinthoras.visualprospecting.database.OreVeinPosition;
+import com.sinthoras.visualprospecting.database.UndergroundFluidPosition;
+
+import serverutils.lib.data.ForgeTeam;
 
 public class TeamSyncBatchWorker extends BatchWorkBase {
 
@@ -23,13 +24,11 @@ public class TeamSyncBatchWorker extends BatchWorkBase {
     }
 
     public void addOreVeins(ForgeTeam team, List<OreVeinPosition> oreVeins) {
-        getTeamBatchData(team)
-            .addOreVeins(oreVeins);
+        getTeamBatchData(team).addOreVeins(oreVeins);
     }
 
     public void addUndergroundFluids(ForgeTeam team, List<UndergroundFluidPosition> undergroundFluids) {
-        getTeamBatchData(team)
-            .addUndergroundFluids(undergroundFluids);
+        getTeamBatchData(team).addUndergroundFluids(undergroundFluids);
     }
 
     private TeamBatchData getTeamBatchData(ForgeTeam team) {
@@ -39,10 +38,7 @@ public class TeamSyncBatchWorker extends BatchWorkBase {
     @Override
     protected void run() {
         List<String> entriesToRemove = new ArrayList<>();
-        teamBatchMap.forEach((key, teamBatchData) -> {
-            if (teamBatchData.sendData())
-                entriesToRemove.add(key);
-        });
+        teamBatchMap.forEach((key, teamBatchData) -> { if (teamBatchData.sendData()) entriesToRemove.add(key); });
 
         for (String key : entriesToRemove) {
             teamBatchMap.remove(key);
@@ -50,6 +46,7 @@ public class TeamSyncBatchWorker extends BatchWorkBase {
     }
 
     public static class TeamBatchData {
+
         private final ForgeTeam team;
         private final List<OreVeinPosition> oreVeins = new ArrayList<>();
         private final List<UndergroundFluidPosition> undergroundFluids = new ArrayList<>();
@@ -70,10 +67,12 @@ public class TeamSyncBatchWorker extends BatchWorkBase {
             final ProspectionSyncMsg packet = new ProspectionSyncMsg();
 
             final int oresConsumed = packet.addOreVeins(oreVeins);
-            oreVeins.subList(0, oresConsumed).clear();
+            oreVeins.subList(0, oresConsumed)
+                .clear();
 
             final int fluidsConsumed = packet.addUndergroundFluids(undergroundFluids);
-            undergroundFluids.subList(0, fluidsConsumed).clear();
+            undergroundFluids.subList(0, fluidsConsumed)
+                .clear();
 
             SPNetwork.sendToTeamMembers(packet, team);
 

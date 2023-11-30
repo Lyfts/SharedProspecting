@@ -1,18 +1,19 @@
 package com.rune580.sharedprospecting.database;
 
-import net.minecraft.entity.player.EntityPlayerMP;
-import serverutils.lib.data.ForgeTeam;
-
-import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.Map;
+
+import javax.annotation.Nullable;
+
+import net.minecraft.entity.player.EntityPlayerMP;
+
+import serverutils.lib.data.ForgeTeam;
 
 public class TeamsCache {
 
     public static final TeamsCache instance = new TeamsCache();
 
     private final Map<String, TeamCache> teamCacheMap = new HashMap<>();
-
 
     public TeamCache get(ForgeTeam team) {
         final String uuid = team.getUIDCode();
@@ -22,12 +23,13 @@ public class TeamsCache {
     public @Nullable TeamCache getByPlayer(EntityPlayerMP player) {
         return teamCacheMap.values()
             .stream()
-            .filter(value ->
-                value.getTeam()
+            .filter(
+                value -> value.getTeam()
                     .getOnlineMembers()
                     .stream()
-                    .anyMatch(teamPlayer -> teamPlayer.getPersistentID().equals(player.getPersistentID()))
-            )
+                    .anyMatch(
+                        teamPlayer -> teamPlayer.getPersistentID()
+                            .equals(player.getPersistentID())))
             .findFirst()
             .orElse(null);
     }
@@ -47,8 +49,7 @@ public class TeamsCache {
     }
 
     public void remove(String uuid, String worldId) {
-        if (!teamCacheMap.containsKey(uuid))
-            return;
+        if (!teamCacheMap.containsKey(uuid)) return;
 
         TeamCache teamCache = teamCacheMap.get(uuid);
         teamCache.delete(worldId);

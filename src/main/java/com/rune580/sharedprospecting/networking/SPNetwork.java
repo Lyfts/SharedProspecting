@@ -1,16 +1,20 @@
 package com.rune580.sharedprospecting.networking;
 
+import net.minecraft.entity.player.EntityPlayerMP;
+
+import org.jetbrains.annotations.NotNull;
+
 import com.rune580.sharedprospecting.Tokens;
+
 import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.common.network.simpleimpl.IMessage;
 import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
 import cpw.mods.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import cpw.mods.fml.relauncher.Side;
-import net.minecraft.entity.player.EntityPlayerMP;
-import org.jetbrains.annotations.NotNull;
 import serverutils.lib.data.ForgeTeam;
 
 public class SPNetwork {
+
     private static SimpleNetworkWrapper networkWrapper;
     private static int channelId;
 
@@ -19,7 +23,8 @@ public class SPNetwork {
         channelId = 0;
     }
 
-    public static <REQ extends IMessage, REPLY extends IMessage> void registerMessage(Class<? extends IMessageHandler<REQ, REPLY>> messageHandler, Class<REQ> requestMessageType, Side side) {
+    public static <REQ extends IMessage, REPLY extends IMessage> void registerMessage(
+        Class<? extends IMessageHandler<REQ, REPLY>> messageHandler, Class<REQ> requestMessageType, Side side) {
         networkWrapper.registerMessage(messageHandler, requestMessageType, channelId++, side);
     }
 

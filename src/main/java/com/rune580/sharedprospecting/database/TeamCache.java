@@ -1,5 +1,9 @@
 package com.rune580.sharedprospecting.database;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+
 import com.rune580.sharedprospecting.SharedProspectingMod;
 import com.rune580.sharedprospecting.Tags;
 import com.rune580.sharedprospecting.utils.FsUtils;
@@ -8,11 +12,8 @@ import com.sinthoras.visualprospecting.database.DimensionCache;
 import com.sinthoras.visualprospecting.database.OreVeinPosition;
 import com.sinthoras.visualprospecting.database.UndergroundFluidPosition;
 import com.sinthoras.visualprospecting.database.WorldCache;
-import serverutils.lib.data.ForgeTeam;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
+import serverutils.lib.data.ForgeTeam;
 
 public class TeamCache extends WorldCache {
 
@@ -36,8 +37,8 @@ public class TeamCache extends WorldCache {
         reset();
 
         final File worldCacheDirectory = new File(getStorageDirectory(), worldId);
-        if (!FsUtils.recursiveDelete(worldCacheDirectory))
-            SharedProspectingMod.LOG.error("Failed to delete team cache for {}! File `{}` still exists on disk!", uuid, worldCacheDirectory);
+        if (!FsUtils.recursiveDelete(worldCacheDirectory)) SharedProspectingMod.LOG
+            .error("Failed to delete team cache for {}! File `{}` still exists on disk!", uuid, worldCacheDirectory);
     }
 
     public ForgeTeam getTeam() {
@@ -48,8 +49,7 @@ public class TeamCache extends WorldCache {
         List<OreVeinPosition> modified = new ArrayList<>();
 
         for (OreVeinPosition oreVein : oreVeins) {
-            if (putOreVein(oreVein) == DimensionCache.UpdateResult.AlreadyKnown)
-                continue;
+            if (putOreVein(oreVein) == DimensionCache.UpdateResult.AlreadyKnown) continue;
 
             modified.add(oreVein);
         }
@@ -61,8 +61,7 @@ public class TeamCache extends WorldCache {
         List<UndergroundFluidPosition> modified = new ArrayList<>();
 
         for (UndergroundFluidPosition fluidPosition : undergroundFluids) {
-            if (putUndergroundFluids(fluidPosition) == DimensionCache.UpdateResult.AlreadyKnown)
-                continue;
+            if (putUndergroundFluids(fluidPosition) == DimensionCache.UpdateResult.AlreadyKnown) continue;
 
             modified.add(fluidPosition);
         }
