@@ -7,8 +7,7 @@
   "compatibilityLevel": "JAVA_8",
   "mixins": [],
   "client": [
-    "visualprospecting.WorldCacheAccessor",
-    "visualprospecting.ClientCacheMixin"
+    "visualprospecting.WorldCacheAccessor"
   ],
   "server": []
 }

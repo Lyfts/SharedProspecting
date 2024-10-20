@@ -30,6 +30,7 @@ public class ClientSyncBatchWork extends BatchWorkBase {
 
     @Override
     protected void run() {
+        if(oreVeins.isEmpty() && undergroundFluids.isEmpty()) return;
         final ProspectionSyncMsg packet = new ProspectionSyncMsg();
 
         final int oresConsumed = packet.addOreVeins(oreVeins);

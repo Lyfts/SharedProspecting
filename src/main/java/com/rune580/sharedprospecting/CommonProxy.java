@@ -26,9 +26,6 @@ public class CommonProxy {
     public void preInit(FMLPreInitializationEvent event) {
         Config.synchronizeConfiguration(event.getSuggestedConfigurationFile());
 
-        SharedProspectingMod.LOG.info("I am " + Tokens.MODNAME + " at version " + Tokens.VERSION);
-
-        SPNetwork.Init();
         SPNetwork.registerMessage(ProspectionSyncMsg.ServerHandler.class, ProspectionSyncMsg.class, Side.SERVER);
         SPNetwork.registerMessage(ProspectionSyncMsg.ClientHandler.class, ProspectionSyncMsg.class, Side.CLIENT);
         SPNetwork.registerMessage(SyncMsg.ServerHandler.class, SyncMsg.class, Side.SERVER);

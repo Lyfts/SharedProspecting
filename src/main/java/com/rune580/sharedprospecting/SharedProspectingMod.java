@@ -12,14 +12,17 @@ import cpw.mods.fml.common.event.FMLServerStartingEvent;
 import cpw.mods.fml.common.event.FMLServerStoppingEvent;
 
 @Mod(
-    modid = Tokens.MODID,
+    modid = SharedProspectingMod.MOD_ID,
     version = Tokens.VERSION,
-    name = Tokens.MODNAME,
+    name = SharedProspectingMod.MOD_NAME,
     acceptedMinecraftVersions = "[1.7.10]",
     dependencies = "required-after:visualprospecting;required-after:serverutilities")
 public class SharedProspectingMod {
 
-    public static final Logger LOG = LogManager.getLogger(Tokens.MODID);
+    public static final Logger LOG = LogManager.getLogger(SharedProspectingMod.MOD_ID);
+
+    public static final String MOD_ID = "sharedprospecting";
+    public static final String MOD_NAME = "SharedProspecting";
 
     @SidedProxy(
         clientSide = "com.rune580.sharedprospecting.ClientProxy",

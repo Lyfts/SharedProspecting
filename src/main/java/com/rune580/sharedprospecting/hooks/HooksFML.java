@@ -13,7 +13,6 @@ import cpw.mods.fml.common.eventhandler.EventPriority;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.PlayerEvent;
 import cpw.mods.fml.common.gameevent.TickEvent;
-import cpw.mods.fml.common.network.FMLNetworkEvent;
 
 public class HooksFML {
 
@@ -27,11 +26,6 @@ public class HooksFML {
         SyncMsg packet = new SyncMsg();
         packet.setStartSync(true);
         SPNetwork.sendToPlayer(packet, player);
-    }
-
-    @SubscribeEvent
-    public void onClientConnectedToServer(FMLNetworkEvent.ClientConnectedToServerEvent event) {
-
     }
 
     @SubscribeEvent

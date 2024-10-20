@@ -1,13 +1,15 @@
 package com.rune580.sharedprospecting.worker;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Deque;
 import java.util.List;
 
 public class TickWorker {
 
     public static final TickWorker instance = new TickWorker();
 
-    private final List<IWork> workQueue = new ArrayList<>();
+    private final Deque<IWork> workQueue = new ArrayDeque<>();
 
     public void queueWork(IWork work) {
         workQueue.add(work);
@@ -16,7 +18,7 @@ public class TickWorker {
     public void onTick() {
         if (workQueue.isEmpty()) return;
 
-        IWork work = workQueue.get(0);
-        if (work.run()) workQueue.remove(0);
+        IWork work = workQueue.peek();
+        if (work.run()) workQueue.pop();
     }
 }

@@ -4,7 +4,7 @@ import net.minecraft.entity.player.EntityPlayerMP;
 
 import org.jetbrains.annotations.NotNull;
 
-import com.rune580.sharedprospecting.Tokens;
+import com.rune580.sharedprospecting.SharedProspectingMod;
 
 import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.common.network.simpleimpl.IMessage;
@@ -15,13 +15,9 @@ import serverutils.lib.data.ForgeTeam;
 
 public class SPNetwork {
 
-    private static SimpleNetworkWrapper networkWrapper;
-    private static int channelId;
-
-    public static void Init() {
-        networkWrapper = NetworkRegistry.INSTANCE.newSimpleChannel(Tokens.MODID);
-        channelId = 0;
-    }
+    private static final SimpleNetworkWrapper networkWrapper = NetworkRegistry.INSTANCE
+        .newSimpleChannel(SharedProspectingMod.MOD_ID);
+    private static int channelId = 0;
 
     public static <REQ extends IMessage, REPLY extends IMessage> void registerMessage(
         Class<? extends IMessageHandler<REQ, REPLY>> messageHandler, Class<REQ> requestMessageType, Side side) {

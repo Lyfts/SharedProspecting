@@ -1,19 +1,19 @@
 package com.rune580.sharedprospecting.worker;
 
-import com.rune580.sharedprospecting.mixinaccess.visualprospecting.IClientCacheMixin;
+import com.rune580.sharedprospecting.mixins.visualprospecting.WorldCacheAccessor;
 import com.sinthoras.visualprospecting.database.ClientCache;
 
 public class WaitUntilClientCacheHasLoaded implements IWork {
 
-    private final IClientCacheMixin cache;
+    private final ClientCache cache;
 
     public WaitUntilClientCacheHasLoaded() {
-        cache = (IClientCacheMixin) ClientCache.instance;
+        cache = ClientCache.instance;
     }
 
     @Override
     public boolean run() {
-        boolean isLoaded = cache.sharedProspecting$getIsLoaded();
+        boolean isLoaded = ((WorldCacheAccessor) cache).getIsLoaded();
 
         if (isLoaded) {
             ClientToServerFullSync work = new ClientToServerFullSync();

@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.rune580.sharedprospecting.Config;
-import com.rune580.sharedprospecting.utils.NetworkingUtils;
 import com.sinthoras.visualprospecting.database.OreVeinPosition;
 import com.sinthoras.visualprospecting.database.UndergroundFluidPosition;
+import com.sinthoras.visualprospecting.utils.VPByteBufUtils;
 
 import cpw.mods.fml.common.network.simpleimpl.IMessage;
 import io.netty.buffer.ByteBuf;
@@ -61,13 +61,13 @@ public abstract class ProspectionSyncMsgBase implements IMessage {
 
     @Override
     public void fromBytes(ByteBuf buf) {
-        oreVeins.addAll(NetworkingUtils.ReadOreVeinPositions(buf));
-        undergroundFluids.addAll(NetworkingUtils.ReadUndergroundFluidPositions(buf));
+        oreVeins.addAll(VPByteBufUtils.ReadOreVeinPositions(buf));
+        undergroundFluids.addAll(VPByteBufUtils.ReadUndergroundFluidPositions(buf));
     }
 
     @Override
     public void toBytes(ByteBuf buf) {
-        NetworkingUtils.WriteOreVeinPositions(buf, oreVeins);
-        NetworkingUtils.WriteUndergroundFluidPositions(buf, undergroundFluids);
+        VPByteBufUtils.WriteOreVeinPositions(buf, oreVeins);
+        VPByteBufUtils.WriteUndergroundFluidPositions(buf, undergroundFluids);
     }
 }

@@ -49,9 +49,8 @@ public class TeamsCache {
     }
 
     public void remove(String uuid, String worldId) {
-        if (!teamCacheMap.containsKey(uuid)) return;
-
         TeamCache teamCache = teamCacheMap.get(uuid);
+        if(teamCache == null) return;
         teamCache.delete(worldId);
 
         teamCacheMap.remove(uuid);

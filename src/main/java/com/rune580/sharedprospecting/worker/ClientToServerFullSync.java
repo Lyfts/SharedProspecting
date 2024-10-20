@@ -17,8 +17,11 @@ public class ClientToServerFullSync extends SyncWork {
 
     @Override
     protected void sendSync() {
-        final ProspectionSyncMsg packet = new ProspectionSyncMsg();
+        if(oreVeins.isEmpty() && undergroundFluids.isEmpty()) {
+            return;
+        }
 
+        final ProspectionSyncMsg packet = new ProspectionSyncMsg();
         final int oresConsumed = packet.addOreVeins(oreVeins);
         oreVeins.subList(0, oresConsumed)
             .clear();

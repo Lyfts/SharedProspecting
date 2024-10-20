@@ -37,8 +37,14 @@ public class TeamSyncBatchWorker extends BatchWorkBase {
 
     @Override
     protected void run() {
+        if(teamBatchMap.isEmpty()) return;
         List<String> entriesToRemove = new ArrayList<>();
-        teamBatchMap.forEach((key, teamBatchData) -> { if (teamBatchData.sendData()) entriesToRemove.add(key); });
+
+        for(Map.Entry<String, TeamBatchData> entry : teamBatchMap.entrySet()) {
+            if(entry.getValue().sendData()) {
+                entriesToRemove.add(entry.getKey());
+            }
+        }
 
         for (String key : entriesToRemove) {
             teamBatchMap.remove(key);
@@ -64,6 +70,7 @@ public class TeamSyncBatchWorker extends BatchWorkBase {
         }
 
         private boolean sendData() {
+            if(isEmpty()) return true;
             final ProspectionSyncMsg packet = new ProspectionSyncMsg();
 
             final int oresConsumed = packet.addOreVeins(oreVeins);

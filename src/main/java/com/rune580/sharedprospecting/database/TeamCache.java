@@ -5,8 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.rune580.sharedprospecting.SharedProspectingMod;
-import com.rune580.sharedprospecting.Tags;
-import com.rune580.sharedprospecting.utils.FsUtils;
 import com.rune580.sharedprospecting.worker.batch.TeamSyncBatchWorker;
 import com.sinthoras.visualprospecting.database.DimensionCache;
 import com.sinthoras.visualprospecting.database.OreVeinPosition;
@@ -14,6 +12,7 @@ import com.sinthoras.visualprospecting.database.UndergroundFluidPosition;
 import com.sinthoras.visualprospecting.database.WorldCache;
 
 import serverutils.lib.data.ForgeTeam;
+import serverutils.lib.util.FileUtils;
 
 public class TeamCache extends WorldCache {
 
@@ -26,8 +25,7 @@ public class TeamCache extends WorldCache {
     }
 
     protected File getStorageDirectory() {
-        final File teamDir = com.sinthoras.visualprospecting.Utils.getSubDirectory(Tags.TEAMS_DIR);
-        return new File(teamDir, uuid);
+        return new File(SharedProspectingMod.MOD_ID + "/teams", uuid);
     }
 
     /**
@@ -37,7 +35,7 @@ public class TeamCache extends WorldCache {
         reset();
 
         final File worldCacheDirectory = new File(getStorageDirectory(), worldId);
-        if (!FsUtils.recursiveDelete(worldCacheDirectory)) SharedProspectingMod.LOG
+        if (!FileUtils.delete(worldCacheDirectory)) SharedProspectingMod.LOG
             .error("Failed to delete team cache for {}! File `{}` still exists on disk!", uuid, worldCacheDirectory);
     }
 
