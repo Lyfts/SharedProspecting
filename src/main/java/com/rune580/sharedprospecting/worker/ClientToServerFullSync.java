@@ -17,7 +17,7 @@ public class ClientToServerFullSync extends SyncWork {
 
     @Override
     protected void sendSync() {
-        if(oreVeins.isEmpty() && undergroundFluids.isEmpty()) {
+        if (oreVeins.isEmpty() && undergroundFluids.isEmpty()) {
             return;
         }
 

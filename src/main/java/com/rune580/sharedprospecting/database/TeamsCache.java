@@ -50,7 +50,7 @@ public class TeamsCache {
 
     public void remove(String uuid, String worldId) {
         TeamCache teamCache = teamCacheMap.get(uuid);
-        if(teamCache == null) return;
+        if (teamCache == null) return;
         teamCache.delete(worldId);
 
         teamCacheMap.remove(uuid);

@@ -1,9 +1,7 @@
 package com.rune580.sharedprospecting.worker;
 
 import java.util.ArrayDeque;
-import java.util.ArrayList;
 import java.util.Deque;
-import java.util.List;
 
 public class TickWorker {
 
@@ -16,9 +14,8 @@ public class TickWorker {
     }
 
     public void onTick() {
-        if (workQueue.isEmpty()) return;
-
         IWork work = workQueue.peek();
-        if (work.run()) workQueue.pop();
+        if (work == null) return;
+        if (work.run()) workQueue.poll();
     }
 }

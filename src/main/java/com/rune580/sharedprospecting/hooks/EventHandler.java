@@ -4,31 +4,24 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraftforge.event.world.WorldEvent;
 
 import com.rune580.sharedprospecting.SharedProspectingMod;
+import com.rune580.sharedprospecting.database.TeamCache;
 import com.rune580.sharedprospecting.database.TeamsCache;
 import com.rune580.sharedprospecting.networking.SPNetwork;
 import com.rune580.sharedprospecting.networking.SyncMsg;
-import com.rune580.sharedprospecting.worker.batch.ClientSyncBatchWork;
+import com.rune580.sharedprospecting.worker.TickWorker;
 import com.sinthoras.visualprospecting.database.WorldIdHandler;
-import com.sinthoras.visualprospecting.hooks.ProspectingNotificationEvent;
 
+import cpw.mods.fml.common.eventhandler.EventPriority;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
+import cpw.mods.fml.common.gameevent.PlayerEvent;
+import cpw.mods.fml.common.gameevent.TickEvent;
 import serverutils.events.team.ForgeTeamCreatedEvent;
 import serverutils.events.team.ForgeTeamDeletedEvent;
 import serverutils.events.team.ForgeTeamLoadedEvent;
 import serverutils.events.team.ForgeTeamPlayerJoinedEvent;
 import serverutils.lib.data.ForgeTeam;
 
-public class HooksEventBus {
-
-    @SubscribeEvent
-    public void onProspectingOreNotificationEvent(ProspectingNotificationEvent.OreVein event) {
-        ClientSyncBatchWork.instance.addOreVein(event.getPosition());
-    }
-
-    @SubscribeEvent
-    public void OnProspectingFluidNotificationEvent(ProspectingNotificationEvent.UndergroundFluid event) {
-        ClientSyncBatchWork.instance.addUndergroundFluid(event.getPosition());
-    }
+public class EventHandler {
 
     @SubscribeEvent
     public void onTeamCreated(ForgeTeamCreatedEvent event) {
@@ -72,5 +65,23 @@ public class HooksEventBus {
     @SubscribeEvent
     public void onWorldSave(WorldEvent.Save event) {
         TeamsCache.instance.save();
+    }
+
+    @SubscribeEvent(priority = EventPriority.LOW)
+    public void onPlayerLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {
+        if (!(event.player instanceof EntityPlayerMP player)) return;
+
+        TeamCache teamCache = TeamsCache.instance.getByPlayer(player);
+        if (teamCache == null) return;
+
+        SyncMsg packet = new SyncMsg();
+        packet.setStartSync(true);
+        SPNetwork.sendToPlayer(packet, player);
+    }
+
+    @SubscribeEvent
+    public void onTick(TickEvent.ServerTickEvent event) {
+        TickWorker.instance.onTick();
+        SharedProspectingMod.proxy.batchWorker.onTick();
     }
 }

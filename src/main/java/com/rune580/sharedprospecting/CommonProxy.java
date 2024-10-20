@@ -3,8 +3,7 @@ package com.rune580.sharedprospecting;
 import net.minecraftforge.common.MinecraftForge;
 
 import com.rune580.sharedprospecting.database.TeamsCache;
-import com.rune580.sharedprospecting.hooks.HooksEventBus;
-import com.rune580.sharedprospecting.hooks.HooksFML;
+import com.rune580.sharedprospecting.hooks.EventHandler;
 import com.rune580.sharedprospecting.networking.ProspectionSyncMsg;
 import com.rune580.sharedprospecting.networking.SPNetwork;
 import com.rune580.sharedprospecting.networking.SyncMsg;
@@ -37,10 +36,10 @@ public class CommonProxy {
 
     // load "Do your mod setup. Build whatever data structures you care about. Register recipes." (Remove if not needed)
     public void init(FMLInitializationEvent event) {
-        MinecraftForge.EVENT_BUS.register(new HooksEventBus());
+        MinecraftForge.EVENT_BUS.register(new EventHandler());
         FMLCommonHandler.instance()
             .bus()
-            .register(new HooksFML());
+            .register(new EventHandler());
     }
 
     // postInit "Handle interaction with other mods, complete your setup based on this." (Remove if not needed)
