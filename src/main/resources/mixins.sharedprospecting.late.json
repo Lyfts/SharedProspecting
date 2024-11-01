@@ -1,6 +1,7 @@
 {
   "required": true,
   "minVersion": "0.8.5-GTNH",
+  "package": "com.rune580.sharedprospecting.mixins.late",
   "refmap": "mixins.sharedprospecting.refmap.json",
   "target": "@env(DEFAULT)",
   "compatibilityLevel": "JAVA_8"
