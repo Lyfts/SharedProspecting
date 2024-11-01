@@ -8,7 +8,6 @@ import javax.annotation.Nullable;
 
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 
 import com.gtnewhorizon.gtnhlib.eventbus.EventBusSubscriber;
 import com.rune580.sharedprospecting.SharedProspectingMod;
@@ -22,7 +21,9 @@ import com.sinthoras.visualprospecting.database.WorldCache;
 import com.sinthoras.visualprospecting.database.WorldIdHandler;
 import com.sinthoras.visualprospecting.network.ProspectingNotification;
 
+import cpw.mods.fml.common.eventhandler.EventPriority;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
+import cpw.mods.fml.common.gameevent.PlayerEvent;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.ints.IntArraySet;
@@ -184,6 +185,12 @@ public class SPTeamData extends TeamData {
         team.markDirty();
     }
 
+    public static void updatePlayer(EntityPlayerMP player) {
+        SPTeamData data = SPTeamData.get(player);
+        if (data == null) return;
+        data.updateMemberRevision(player);
+    }
+
     @SubscribeEvent
     public static void onTeamLoaded(ForgeTeamLoadedEvent event) {
         ForgeTeam team = event.getTeam();
@@ -202,12 +209,16 @@ public class SPTeamData extends TeamData {
             .updateMemberRevision(player);
     }
 
+    @SubscribeEvent(priority = EventPriority.LOWEST)
+    public static void onPlayerLogin(PlayerEvent.PlayerLoggedInEvent event) {
+        if (!(event.player instanceof EntityPlayerMP playerMP) || event.player.worldObj.isRemote) return;
+        updatePlayer(playerMP);
+    }
+
     @SubscribeEvent
-    public static void onEntityJoinWorld(EntityJoinWorldEvent event) {
-        if (!(event.entity instanceof EntityPlayerMP player) || event.world.isRemote) return;
-        SPTeamData data = SPTeamData.get(player);
-        if (data == null) return;
-        data.updateMemberRevision(player);
+    public static void onPlayerChangedDimension(PlayerEvent.PlayerChangedDimensionEvent event) {
+        if (!(event.player instanceof EntityPlayerMP playerMP) || event.player.worldObj.isRemote) return;
+        updatePlayer(playerMP);
     }
 
     @SubscribeEvent
