@@ -23,8 +23,5 @@ public class CommonProxy {
     // register server commands in this event handler (Remove if not needed)
     public void serverStarting(FMLServerStartingEvent event) {}
 
-    public void serverStopping(FMLServerStoppingEvent event) {
-        // TeamsCache.instance.save();
-        // TeamsCache.instance.reset();
-    }
+    public void serverStopping(FMLServerStoppingEvent event) {}
 }

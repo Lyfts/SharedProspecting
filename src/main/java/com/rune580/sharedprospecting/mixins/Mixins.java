@@ -16,10 +16,10 @@ import cpw.mods.fml.relauncher.FMLLaunchHandler;
 
 public enum Mixins {
 
-    CLIENT_CACHE(new Builder("ClientCache").setSide(Side.CLIENT)
+    LOAD_REVISION(new Builder("Load revisions after ClientCache is loaded").setSide(Side.CLIENT)
         .addTargetedMod(TargetedMod.VISUAL_PROSPECTING)
         .setPhase(Phase.LATE)
-        .addMixinClasses("visualprospecting.MixinClientCache")),
+        .addMixinClasses("visualprospecting.MixinWorldIdNotification")),
     CAPTURE_POSITIONS(new Builder("Capture Ore/Fluid positions").setSide(Side.BOTH)
         .addTargetedMod(TargetedMod.VISUAL_PROSPECTING)
         .setPhase(Phase.LATE)
