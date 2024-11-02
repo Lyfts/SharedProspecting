@@ -2,6 +2,7 @@ package com.rune580.sharedprospecting.database;
 
 import java.io.File;
 import java.util.Collection;
+import java.util.Map;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.NBTTagCompound;
@@ -9,7 +10,6 @@ import net.minecraft.nbt.NBTTagCompound;
 import org.jetbrains.annotations.NotNull;
 
 import com.gtnewhorizon.gtnhlib.eventbus.EventBusSubscriber;
-import com.rune580.sharedprospecting.SharedProspectingMod;
 import com.rune580.sharedprospecting.mixins.late.visualprospecting.WorldCacheAccessor;
 import com.rune580.sharedprospecting.networking.MessageRequestUpdate;
 import com.rune580.sharedprospecting.networking.MessageSendExistingData;
@@ -17,10 +17,11 @@ import com.sinthoras.visualprospecting.database.ClientCache;
 import com.sinthoras.visualprospecting.database.DimensionCache;
 import com.sinthoras.visualprospecting.database.OreVeinPosition;
 import com.sinthoras.visualprospecting.database.UndergroundFluidPosition;
+import com.sinthoras.visualprospecting.database.WorldCache;
 
-import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.network.FMLNetworkEvent;
+import cpw.mods.fml.relauncher.ReflectionHelper;
 import cpw.mods.fml.relauncher.Side;
 import it.unimi.dsi.fastutil.ints.Int2LongMap;
 import it.unimi.dsi.fastutil.ints.Int2LongOpenHashMap;
@@ -30,17 +31,26 @@ import serverutils.lib.util.NBTUtils;
 @EventBusSubscriber(side = Side.CLIENT)
 public class ClientRevision {
 
+    private static final Map<Integer, DimensionCache> clientCacheDims;
     private static final Int2LongMap dimRevision = new Int2LongOpenHashMap();
     private static File revisionFile;
     private static String teamId = "";
     private static ObjectLongPair<String> pendingRevision;
 
-    public static void loadRevisionData(String address) {
+    static {
+        try {
+            // noinspection unchecked
+            clientCacheDims = (Map<Integer, DimensionCache>) ReflectionHelper.findField(WorldCache.class, "dimensions")
+                .get(ClientCache.instance);
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException("Failed to get client dimensions field", e);
+        }
+    }
+
+    private static void loadRevisionData(File dir) {
         if (!dimRevision.isEmpty()) {
             reset();
         }
-
-        File dir = new File(SharedProspectingMod.MOD_ID + "/client", getIdentifier(address));
 
         NBTTagCompound compound = NBTUtils.readNBT(revisionFile = new File(dir, "revision.dat"));
         if (compound == null) return;
@@ -52,7 +62,7 @@ public class ClientRevision {
         }
     }
 
-    public static void saveRevisionData() {
+    private static void saveRevisionData() {
         NBTTagCompound compound = new NBTTagCompound();
 
         compound.setString("teamId", teamId);
@@ -64,7 +74,8 @@ public class ClientRevision {
         NBTUtils.writeNBT(revisionFile, compound);
     }
 
-    public static void onClientCacheLoad() {
+    public static void onClientCacheLoad(File dir) {
+        loadRevisionData(dir);
         if (pendingRevision != null) {
             int dim = Minecraft.getMinecraft().thePlayer.dimension;
             updateRevision(pendingRevision.left(), dim, pendingRevision.rightLong());
@@ -86,8 +97,7 @@ public class ClientRevision {
 
         long oldRevision = dimRevision.put(dim, revision);
         if (oldRevision == 0) {
-            DimensionCache dimension = cache.getDimensions()
-                .get(dim);
+            DimensionCache dimension = clientCacheDims.get(dim);
             if (dimension != null) {
                 Collection<OreVeinPosition> veins = dimension.getAllOreVeins();
                 Collection<UndergroundFluidPosition> fluids = dimension.getAllUndergroundFluids();
@@ -105,27 +115,8 @@ public class ClientRevision {
         dimRevision.clear();
     }
 
-    private static String getIdentifier(String address) {
-        if (Minecraft.getMinecraft()
-            .isSingleplayer()) {
-            return FMLCommonHandler.instance()
-                .getMinecraftServerInstance()
-                .getFolderName();
-        }
-
-        return address.substring(address.indexOf("/") + 1)
-            .replace(":", ".");
-    }
-
     @SubscribeEvent
     public static void onClientDisconnect(FMLNetworkEvent.ClientDisconnectionFromServerEvent event) {
         reset();
-    }
-
-    @SubscribeEvent
-    public static void onClientConnect(FMLNetworkEvent.ClientConnectedToServerEvent event) {
-        loadRevisionData(
-            event.manager.getSocketAddress()
-                .toString());
     }
 }

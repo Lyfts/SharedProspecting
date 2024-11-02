@@ -16,8 +16,8 @@ import cpw.mods.fml.common.event.FMLServerStoppingEvent;
     version = Tokens.VERSION,
     name = SharedProspectingMod.MOD_NAME,
     acceptedMinecraftVersions = "[1.7.10]",
-    dependencies = "required-after:visualprospecting@[1.3.28,);" + "required-after:serverutilities;"
-        + "required-after:gtnhlib;")
+    dependencies = "required-after:visualprospecting;" + "required-after:serverutilities;"
+        + "required-after:gtnhlib@[0.5.14,);")
 public class SharedProspectingMod {
 
     public static final Logger LOG = LogManager.getLogger(SharedProspectingMod.MOD_ID);

@@ -3,6 +3,7 @@ package com.rune580.sharedprospecting.database;
 import java.io.File;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.Nullable;
 
@@ -24,6 +25,7 @@ import com.sinthoras.visualprospecting.network.ProspectingNotification;
 import cpw.mods.fml.common.eventhandler.EventPriority;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.PlayerEvent;
+import cpw.mods.fml.relauncher.ReflectionHelper;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.ints.IntArraySet;
@@ -44,7 +46,6 @@ import serverutils.lib.util.NBTUtils;
 public class SPTeamData extends TeamData {
 
     private final Int2ObjectMap<OrderedDimCache> dimensions = new Int2ObjectOpenHashMap<>();
-    private static final File oldDir = new File(SharedProspectingMod.MOD_ID + "/teams");
 
     public SPTeamData(ForgeTeam team) {
         super(team);
@@ -160,7 +161,7 @@ public class SPTeamData extends TeamData {
     }
 
     public void importOldData() {
-        File oldFile = new File(oldDir, team.getUIDCode());
+        File oldFile = new File(SharedProspectingMod.MOD_ID + "/teams/", team.getUIDCode());
         if (!oldFile.exists()) return;
         WorldCache tempCache = new WorldCache() {
 
@@ -175,8 +176,20 @@ public class SPTeamData extends TeamData {
             .exists()) return;
 
         tempCache.loadVeinCache(WorldIdHandler.getWorldId());
-        for (DimensionCache oldCache : tempCacheAccessor.getDimensions()
-            .values()) {
+
+        Map<Integer, DimensionCache> dimensionCacheMap;
+        try {
+            // this is only done once when migrating the data, no need to cache the field
+            // noinspection unchecked
+            dimensionCacheMap = (Map<Integer, DimensionCache>) ReflectionHelper
+                .findField(WorldCache.class, "dimensions")
+                .get(tempCache);
+        } catch (IllegalAccessException e) {
+            SharedProspectingMod.LOG.error("Failed to get dimension cache map", e);
+            return;
+        }
+
+        for (DimensionCache oldCache : dimensionCacheMap.values()) {
             addOreVeins(oldCache.getAllOreVeins());
             addUndergroundFluids(oldCache.getAllUndergroundFluids());
         }
