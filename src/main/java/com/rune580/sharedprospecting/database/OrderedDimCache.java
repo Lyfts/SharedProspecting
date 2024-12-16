@@ -1,15 +1,12 @@
 package com.rune580.sharedprospecting.database;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.nbt.NBTTagLong;
-
-import org.apache.commons.io.FileUtils;
+import net.minecraftforge.common.util.Constants;
 
 import com.gtnewhorizon.gtnhlib.util.CoordinatePacker;
 import com.rune580.sharedprospecting.util.RevisionUtil;
@@ -84,9 +81,14 @@ public class OrderedDimCache {
 
         ObjectList<UndergroundFluidPosition> fluids = new ObjectArrayList<>();
         for (long key : undergroundFluids.subList(fluidSize, undergroundFluids.size())) {
-            fluids.add(
-                ServerCache.instance
-                    .getUndergroundFluid(dimension, CoordinatePacker.unpackX(key), CoordinatePacker.unpackZ(key)));
+            UndergroundFluidPosition fluid = ServerCache.instance
+                .getUndergroundFluid(dimension, CoordinatePacker.unpackX(key), CoordinatePacker.unpackZ(key));
+
+            if (UndergroundFluidPosition.NOT_PROSPECTED.equals(fluid)) {
+                continue;
+            }
+
+            fluids.add(fluid);
         }
 
         return fluids;
@@ -99,9 +101,9 @@ public class OrderedDimCache {
             return;
         }
 
-        NBTTagList oreList = compound.getTagList("oreList", 4);
+        NBTTagList oreList = compound.getTagList("oreList", Constants.NBT.TAG_LONG);
         for (Object obj : oreList.tagList) {
-            undergroundFluids.add(((NBTTagLong) obj).func_150291_c());
+            oreVeins.add(((NBTTagLong) obj).func_150291_c());
         }
     }
 
@@ -112,7 +114,7 @@ public class OrderedDimCache {
             return;
         }
 
-        NBTTagList fluidList = compound.getTagList("fluidList", 4);
+        NBTTagList fluidList = compound.getTagList("fluidList", Constants.NBT.TAG_LONG);
 
         for (Object obj : fluidList.tagList) {
             undergroundFluids.add(((NBTTagLong) obj).func_150291_c());

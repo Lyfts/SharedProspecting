@@ -21,9 +21,6 @@ public class MessageSendExistingData extends MessageToServer {
     private final LongList oreVeins = new LongArrayList();
     private final LongList undergroundFluids = new LongArrayList();
 
-    private static final DataOut.Serializer<Long> LONG_SERIALIZER = DataOut::writeLong;
-    private static final DataIn.Deserializer<Long> LONG_DESERIALIZER = DataIn::readLong;
-
     public MessageSendExistingData() {}
 
     public MessageSendExistingData(DimensionCache cache) {
@@ -41,16 +38,25 @@ public class MessageSendExistingData extends MessageToServer {
 
     @Override
     public void writeData(DataOut data) {
-        data.writeInt(dimension);
-        data.writeCollection(oreVeins, LONG_SERIALIZER);
-        data.writeCollection(undergroundFluids, LONG_SERIALIZER);
+        data.writeVarInt(dimension);
+        data.writeVarInt(oreVeins.size());
+        oreVeins.forEach(data::writeVarLong);
+        data.writeVarInt(undergroundFluids.size());
+        undergroundFluids.forEach(data::writeVarLong);
     }
 
     @Override
     public void readData(DataIn data) {
-        dimension = data.readInt();
-        oreVeins.addAll(data.readCollection(LONG_DESERIALIZER));
-        undergroundFluids.addAll(data.readCollection(LONG_DESERIALIZER));
+        dimension = data.readVarInt();
+        int size = data.readVarInt();
+        for (int i = 0; i < size; i++) {
+            oreVeins.add(data.readVarLong());
+        }
+
+        size = data.readVarInt();
+        for (int i = 0; i < size; i++) {
+            undergroundFluids.add(data.readVarLong());
+        }
     }
 
     @Override
