@@ -14,6 +14,7 @@ import com.gtnewhorizon.gtnhlib.eventbus.EventBusSubscriber;
 import com.rune580.sharedprospecting.SharedProspectingMod;
 import com.rune580.sharedprospecting.mixins.late.visualprospecting.WorldCacheAccessor;
 import com.rune580.sharedprospecting.networking.MessageUpdateRevision;
+import com.rune580.sharedprospecting.util.RevisionUtil;
 import com.sinthoras.visualprospecting.VP;
 import com.sinthoras.visualprospecting.database.DimensionCache;
 import com.sinthoras.visualprospecting.database.OreVeinPosition;
@@ -30,10 +31,13 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.ints.IntArraySet;
 import it.unimi.dsi.fastutil.ints.IntSet;
+import it.unimi.dsi.fastutil.ints.IntSets;
+import it.unimi.dsi.fastutil.longs.LongList;
 import serverutils.events.team.ForgeTeamDataEvent;
 import serverutils.events.team.ForgeTeamDeletedEvent;
 import serverutils.events.team.ForgeTeamLoadedEvent;
 import serverutils.events.team.ForgeTeamPlayerJoinedEvent;
+import serverutils.events.team.ForgeTeamPlayerLeftEvent;
 import serverutils.events.team.ForgeTeamSavedEvent;
 import serverutils.lib.data.ForgeTeam;
 import serverutils.lib.data.TeamData;
@@ -119,7 +123,7 @@ public class SPTeamData extends TeamData {
     public void addOreVeins(Collection<OreVeinPosition> oreVeins) {
         IntSet modifiedDims = new IntArraySet();
         for (OreVeinPosition oreVein : oreVeins) {
-            if (putOreVein(oreVein)) {
+            if (putOreVein(oreVein.dimensionId, RevisionUtil.getOreVeinKey(oreVein.chunkX, oreVein.chunkZ))) {
                 modifiedDims.add(oreVein.dimensionId);
             }
         }
@@ -127,10 +131,23 @@ public class SPTeamData extends TeamData {
         updateMembers(modifiedDims);
     }
 
+    public void addOreVeins(int dim, LongList oreVeins) {
+        boolean modified = false;
+        for (long oreVein : oreVeins) {
+            modified |= putOreVein(dim, oreVein);
+        }
+
+        if (modified) {
+            updateMembers(IntSets.singleton(dim));
+        }
+    }
+
     public void addUndergroundFluids(Collection<UndergroundFluidPosition> undergroundFluids) {
         IntSet modifiedDims = new IntArraySet();
         for (UndergroundFluidPosition fluidPosition : undergroundFluids) {
-            if (putUndergroundFluids(fluidPosition)) {
+            if (putUndergroundFluids(
+                fluidPosition.dimensionId,
+                RevisionUtil.getUndergroundFluidKey(fluidPosition.chunkX, fluidPosition.chunkZ))) {
                 modifiedDims.add(fluidPosition.dimensionId);
             }
         }
@@ -138,14 +155,25 @@ public class SPTeamData extends TeamData {
         updateMembers(modifiedDims);
     }
 
-    public boolean putOreVein(OreVeinPosition vein) {
-        OrderedDimCache cache = dimensions.computeIfAbsent(vein.dimensionId, OrderedDimCache::new);
-        return cache.putOreVein(vein);
+    public void addUndergroundFluids(int dim, LongList fluidPositions) {
+        boolean modified = false;
+        for (long pos : fluidPositions) {
+            modified |= putUndergroundFluids(dim, pos);
+        }
+
+        if (modified) {
+            updateMembers(IntSets.singleton(dim));
+        }
     }
 
-    public boolean putUndergroundFluids(UndergroundFluidPosition fluid) {
-        OrderedDimCache cache = dimensions.computeIfAbsent(fluid.dimensionId, OrderedDimCache::new);
-        return cache.putUndergroundFluid(fluid);
+    public boolean putOreVein(int dim, long veinPos) {
+        OrderedDimCache cache = dimensions.computeIfAbsent(dim, OrderedDimCache::new);
+        return cache.putOreVein(veinPos);
+    }
+
+    public boolean putUndergroundFluids(int dim, long fluidPos) {
+        OrderedDimCache cache = dimensions.computeIfAbsent(dim, OrderedDimCache::new);
+        return cache.putUndergroundFluid(fluidPos);
     }
 
     public void updateMembers(IntSet modifiedDims) {
@@ -220,6 +248,13 @@ public class SPTeamData extends TeamData {
             .getPlayer();
         SPTeamData.get(event.getTeam())
             .updateMemberRevision(player);
+    }
+
+    @SubscribeEvent
+    public static void onTeamPlayerLeft(ForgeTeamPlayerLeftEvent event) {
+        EntityPlayerMP player = event.getPlayer()
+            .getPlayer();
+        new MessageUpdateRevision("", 0, 0).sendTo(player);
     }
 
     @SubscribeEvent(priority = EventPriority.LOWEST)

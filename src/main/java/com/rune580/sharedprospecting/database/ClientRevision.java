@@ -1,7 +1,9 @@
 package com.rune580.sharedprospecting.database;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 import net.minecraft.client.Minecraft;
@@ -13,6 +15,7 @@ import com.gtnewhorizon.gtnhlib.eventbus.EventBusSubscriber;
 import com.rune580.sharedprospecting.mixins.late.visualprospecting.WorldCacheAccessor;
 import com.rune580.sharedprospecting.networking.MessageRequestUpdate;
 import com.rune580.sharedprospecting.networking.MessageSendExistingData;
+import com.rune580.sharedprospecting.util.RevisionUtil;
 import com.sinthoras.visualprospecting.database.ClientCache;
 import com.sinthoras.visualprospecting.database.DimensionCache;
 import com.sinthoras.visualprospecting.database.OreVeinPosition;
@@ -25,6 +28,8 @@ import cpw.mods.fml.relauncher.ReflectionHelper;
 import cpw.mods.fml.relauncher.Side;
 import it.unimi.dsi.fastutil.ints.Int2LongMap;
 import it.unimi.dsi.fastutil.ints.Int2LongOpenHashMap;
+import it.unimi.dsi.fastutil.longs.LongArrayList;
+import it.unimi.dsi.fastutil.longs.LongList;
 import it.unimi.dsi.fastutil.objects.ObjectLongPair;
 import serverutils.lib.util.NBTUtils;
 
@@ -95,6 +100,8 @@ public class ClientRevision {
             dimRevision.clear();
         }
 
+        if (team.isEmpty()) return;
+
         long oldRevision = dimRevision.put(dim, revision);
         if (oldRevision == 0) {
             DimensionCache dimension = clientCacheDims.get(dim);
@@ -102,12 +109,45 @@ public class ClientRevision {
                 Collection<OreVeinPosition> veins = dimension.getAllOreVeins();
                 Collection<UndergroundFluidPosition> fluids = dimension.getAllUndergroundFluids();
                 if (!veins.isEmpty() || !fluids.isEmpty()) {
-                    new MessageSendExistingData(dimension).sendToServer();
+                    sendCache(dimension);
                 }
             }
         }
 
         new MessageRequestUpdate(oldRevision).sendToServer();
+    }
+
+    public static void sendCache(DimensionCache cache) {
+        LongList oreVeins = new LongArrayList();
+        LongList undergroundFluids = new LongArrayList();
+
+        cache.getAllOreVeins()
+            .forEach(vein -> oreVeins.add(RevisionUtil.getOreVeinKey(vein.chunkX, vein.chunkZ)));
+        cache.getAllUndergroundFluids()
+            .forEach(fluid -> undergroundFluids.add(RevisionUtil.getUndergroundFluidKey(fluid.chunkX, fluid.chunkZ)));
+
+        // we can fit roughly 4000 longs in a client packet, split data at 1500 per to be 1000% safe
+        if (oreVeins.size() < 1500 && undergroundFluids.size() < 1500) {
+            new MessageSendExistingData(cache.dimensionId, oreVeins, undergroundFluids).sendToServer();
+        } else {
+            List<LongList> oreChunks = partitionList(oreVeins, 1500);
+            List<LongList> fluidChunks = partitionList(undergroundFluids, 1500);
+
+            for (int i = 0; i < Math.max(oreChunks.size(), fluidChunks.size()); i++) {
+                LongList ores = i < oreChunks.size() ? oreChunks.get(i) : new LongArrayList();
+                LongList fluids = i < fluidChunks.size() ? fluidChunks.get(i) : new LongArrayList();
+                new MessageSendExistingData(cache.dimensionId, ores, fluids).sendToServer();
+            }
+        }
+    }
+
+    private static List<LongList> partitionList(LongList list, int chunkSize) {
+        List<LongList> chunkList = new ArrayList<>();
+        for (int i = 0; i < list.size(); i += chunkSize) {
+            int end = Math.min(i + chunkSize, list.size());
+            chunkList.add(list.subList(i, end));
+        }
+        return chunkList;
     }
 
     public static void reset() {
