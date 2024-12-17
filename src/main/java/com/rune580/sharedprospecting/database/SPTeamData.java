@@ -37,6 +37,7 @@ import serverutils.events.team.ForgeTeamDataEvent;
 import serverutils.events.team.ForgeTeamDeletedEvent;
 import serverutils.events.team.ForgeTeamLoadedEvent;
 import serverutils.events.team.ForgeTeamPlayerJoinedEvent;
+import serverutils.events.team.ForgeTeamPlayerLeftEvent;
 import serverutils.events.team.ForgeTeamSavedEvent;
 import serverutils.lib.data.ForgeTeam;
 import serverutils.lib.data.TeamData;
@@ -247,6 +248,13 @@ public class SPTeamData extends TeamData {
             .getPlayer();
         SPTeamData.get(event.getTeam())
             .updateMemberRevision(player);
+    }
+
+    @SubscribeEvent
+    public static void onTeamPlayerLeft(ForgeTeamPlayerLeftEvent event) {
+        EntityPlayerMP player = event.getPlayer()
+            .getPlayer();
+        new MessageUpdateRevision("", 0, 0).sendTo(player);
     }
 
     @SubscribeEvent(priority = EventPriority.LOWEST)

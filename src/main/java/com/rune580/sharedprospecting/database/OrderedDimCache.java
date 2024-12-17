@@ -13,6 +13,7 @@ import com.rune580.sharedprospecting.util.RevisionUtil;
 import com.sinthoras.visualprospecting.database.OreVeinPosition;
 import com.sinthoras.visualprospecting.database.ServerCache;
 import com.sinthoras.visualprospecting.database.UndergroundFluidPosition;
+import com.sinthoras.visualprospecting.database.veintypes.VeinType;
 
 import it.unimi.dsi.fastutil.longs.LongArrayList;
 import it.unimi.dsi.fastutil.longs.LongList;
@@ -42,7 +43,10 @@ public class OrderedDimCache {
     }
 
     public boolean putOreVein(long veinPos) {
-        if (oreVeins.contains(veinPos)) {
+        OreVeinPosition vein = ServerCache.instance
+            .getOreVein(dimension, CoordinatePacker.unpackX(veinPos), CoordinatePacker.unpackZ(veinPos));
+        if (oreVeins.contains(veinPos) || OreVeinPosition.EMPTY_VEIN.equals(vein)
+            || vein.veinType == VeinType.NO_VEIN) {
             return false;
         }
 
@@ -50,7 +54,9 @@ public class OrderedDimCache {
     }
 
     public boolean putUndergroundFluid(long fluidPos) {
-        if (undergroundFluids.contains(fluidPos)) {
+        UndergroundFluidPosition fluid = ServerCache.instance
+            .getUndergroundFluid(dimension, CoordinatePacker.unpackX(fluidPos), CoordinatePacker.unpackZ(fluidPos));
+        if (undergroundFluids.contains(fluidPos) || UndergroundFluidPosition.NOT_PROSPECTED.equals(fluid)) {
             return false;
         }
 

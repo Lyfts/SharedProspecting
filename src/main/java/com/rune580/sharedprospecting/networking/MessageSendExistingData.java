@@ -5,8 +5,6 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import org.jetbrains.annotations.NotNull;
 
 import com.rune580.sharedprospecting.database.SPTeamData;
-import com.rune580.sharedprospecting.util.RevisionUtil;
-import com.sinthoras.visualprospecting.database.DimensionCache;
 
 import it.unimi.dsi.fastutil.longs.LongArrayList;
 import it.unimi.dsi.fastutil.longs.LongList;
@@ -18,17 +16,15 @@ import serverutils.lib.net.NetworkWrapper;
 public class MessageSendExistingData extends MessageToServer {
 
     private int dimension;
-    private final LongList oreVeins = new LongArrayList();
-    private final LongList undergroundFluids = new LongArrayList();
+    private LongList oreVeins;
+    private LongList undergroundFluids;
 
     public MessageSendExistingData() {}
 
-    public MessageSendExistingData(DimensionCache cache) {
-        this.dimension = cache.dimensionId;
-        cache.getAllOreVeins()
-            .forEach(vein -> oreVeins.add(RevisionUtil.getOreVeinKey(vein.chunkX, vein.chunkZ)));
-        cache.getAllUndergroundFluids()
-            .forEach(fluid -> undergroundFluids.add(RevisionUtil.getUndergroundFluidKey(fluid.chunkX, fluid.chunkZ)));
+    public MessageSendExistingData(int dim, LongList ores, LongList fluids) {
+        this.dimension = dim;
+        this.oreVeins = ores;
+        this.undergroundFluids = fluids;
     }
 
     @Override
@@ -49,11 +45,13 @@ public class MessageSendExistingData extends MessageToServer {
     public void readData(DataIn data) {
         dimension = data.readVarInt();
         int size = data.readVarInt();
+        oreVeins = new LongArrayList();
         for (int i = 0; i < size; i++) {
             oreVeins.add(data.readVarLong());
         }
 
         size = data.readVarInt();
+        undergroundFluids = new LongArrayList();
         for (int i = 0; i < size; i++) {
             undergroundFluids.add(data.readVarLong());
         }
