@@ -6,10 +6,13 @@ import java.util.List;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.nbt.NBTTagLong;
+import net.minecraft.world.World;
+import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.util.Constants;
 
 import com.gtnewhorizon.gtnhlib.util.CoordinatePacker;
 import com.rune580.sharedprospecting.util.RevisionUtil;
+import com.sinthoras.visualprospecting.Utils;
 import com.sinthoras.visualprospecting.database.OreVeinPosition;
 import com.sinthoras.visualprospecting.database.ServerCache;
 import com.sinthoras.visualprospecting.database.UndergroundFluidPosition;
@@ -54,9 +57,7 @@ public class OrderedDimCache {
     }
 
     public boolean putUndergroundFluid(long fluidPos) {
-        UndergroundFluidPosition fluid = ServerCache.instance
-            .getUndergroundFluid(dimension, CoordinatePacker.unpackX(fluidPos), CoordinatePacker.unpackZ(fluidPos));
-        if (undergroundFluids.contains(fluidPos) || UndergroundFluidPosition.NOT_PROSPECTED.equals(fluid)) {
+        if (undergroundFluids.contains(fluidPos)) {
             return false;
         }
 
@@ -86,15 +87,14 @@ public class OrderedDimCache {
         if (getRevision() == revision || fluidSize == undergroundFluids.size()) return Collections.emptyList();
 
         ObjectList<UndergroundFluidPosition> fluids = new ObjectArrayList<>();
+        World world = DimensionManager.getWorld(dimension);
         for (long key : undergroundFluids.subList(fluidSize, undergroundFluids.size())) {
-            UndergroundFluidPosition fluid = ServerCache.instance
-                .getUndergroundFluid(dimension, CoordinatePacker.unpackX(key), CoordinatePacker.unpackZ(key));
-
-            if (UndergroundFluidPosition.NOT_PROSPECTED.equals(fluid)) {
-                continue;
-            }
-
-            fluids.add(fluid);
+            int x = Utils.coordChunkToBlock(CoordinatePacker.unpackX(key));
+            int z = Utils.coordChunkToBlock(CoordinatePacker.unpackZ(key));
+            // do one fluid field at a time since the saved coords aren't guaranteed to be adjacent
+            List<UndergroundFluidPosition> prospectedFluids = ServerCache.instance
+                .prospectUndergroundFluidBlockRadius(world, x, z, 0);
+            fluids.addAll(prospectedFluids);
         }
 
         return fluids;
