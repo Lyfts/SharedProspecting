@@ -13,7 +13,9 @@ import net.minecraft.nbt.NBTTagCompound;
 import com.gtnewhorizon.gtnhlib.eventbus.EventBusSubscriber;
 import com.rune580.sharedprospecting.SharedProspectingMod;
 import com.rune580.sharedprospecting.mixins.late.visualprospecting.WorldCacheAccessor;
+import com.rune580.sharedprospecting.networking.MessageUpdateDepletions;
 import com.rune580.sharedprospecting.networking.MessageUpdateRevision;
+import com.rune580.sharedprospecting.networking.MessageUpdateSingleDepleted;
 import com.rune580.sharedprospecting.util.RevisionUtil;
 import com.sinthoras.visualprospecting.VP;
 import com.sinthoras.visualprospecting.database.DimensionCache;
@@ -32,6 +34,7 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.ints.IntArraySet;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import it.unimi.dsi.fastutil.ints.IntSets;
+import it.unimi.dsi.fastutil.longs.Long2BooleanMap;
 import it.unimi.dsi.fastutil.longs.LongList;
 import serverutils.events.team.ForgeTeamDataEvent;
 import serverutils.events.team.ForgeTeamDeletedEvent;
@@ -118,6 +121,29 @@ public class SPTeamData extends TeamData {
     public void updateMemberRevision(EntityPlayerMP player) {
         int dim = player.dimension;
         new MessageUpdateRevision(team.getUIDCode(), dim, getDimRevision(dim)).sendTo(player);
+    }
+
+    public void updateDepletedVeins(int dim, Long2BooleanMap depletedVeins) {
+        if (depletedVeins.isEmpty()) return;
+        OrderedDimCache cache = dimensions.computeIfAbsent(dim, OrderedDimCache::new);
+        for (Long2BooleanMap.Entry entry : depletedVeins.long2BooleanEntrySet()) {
+            boolean depleted = entry.getBooleanValue();
+            if (depleted) {
+                cache.getDepletedVeins()
+                    .add(entry.getLongKey());
+            } else {
+                cache.getDepletedVeins()
+                    .rem(entry.getLongKey());
+            }
+
+            if (depletedVeins.size() == 1) {
+                for (EntityPlayerMP player : team.getOnlineMembers()) {
+                    if (player.dimension == dim) {
+                        new MessageUpdateSingleDepleted(dim, entry.getLongKey(), depleted).sendTo(player);
+                    }
+                }
+            }
+        }
     }
 
     public void addOreVeins(Collection<OreVeinPosition> oreVeins) {
@@ -267,6 +293,12 @@ public class SPTeamData extends TeamData {
     public static void onPlayerChangedDimension(PlayerEvent.PlayerChangedDimensionEvent event) {
         if (!(event.player instanceof EntityPlayerMP playerMP) || event.player.worldObj.isRemote) return;
         updatePlayer(playerMP);
+
+        SPTeamData data = SPTeamData.get(playerMP);
+        if (data == null) return;
+        OrderedDimCache cache = data.getDimensions()
+            .get(event.toDim);
+        new MessageUpdateDepletions(event.toDim, cache.getDepletedVeins()).sendTo(playerMP);
     }
 
     @SubscribeEvent

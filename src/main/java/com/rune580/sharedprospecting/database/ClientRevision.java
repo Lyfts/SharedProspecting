@@ -12,8 +12,10 @@ import net.minecraft.nbt.NBTTagCompound;
 import org.jetbrains.annotations.NotNull;
 
 import com.gtnewhorizon.gtnhlib.eventbus.EventBusSubscriber;
+import com.gtnewhorizon.gtnhlib.util.CoordinatePacker;
 import com.rune580.sharedprospecting.mixins.late.visualprospecting.WorldCacheAccessor;
 import com.rune580.sharedprospecting.networking.MessageRequestUpdate;
+import com.rune580.sharedprospecting.networking.MessageSendDepleted;
 import com.rune580.sharedprospecting.networking.MessageSendExistingData;
 import com.rune580.sharedprospecting.util.RevisionUtil;
 import com.sinthoras.visualprospecting.database.ClientCache;
@@ -28,6 +30,8 @@ import cpw.mods.fml.relauncher.ReflectionHelper;
 import cpw.mods.fml.relauncher.Side;
 import it.unimi.dsi.fastutil.ints.Int2LongMap;
 import it.unimi.dsi.fastutil.ints.Int2LongOpenHashMap;
+import it.unimi.dsi.fastutil.longs.Long2BooleanMap;
+import it.unimi.dsi.fastutil.longs.Long2BooleanOpenHashMap;
 import it.unimi.dsi.fastutil.longs.LongArrayList;
 import it.unimi.dsi.fastutil.longs.LongList;
 import it.unimi.dsi.fastutil.objects.ObjectLongPair;
@@ -41,6 +45,7 @@ public class ClientRevision {
     private static File revisionFile;
     private static String teamId = "";
     private static ObjectLongPair<String> pendingRevision;
+    private static boolean fullDepletionSent = false;
 
     static {
         try {
@@ -60,6 +65,7 @@ public class ClientRevision {
         NBTTagCompound compound = NBTUtils.readNBT(revisionFile = new File(dir, "revision.dat"));
         if (compound == null) return;
         teamId = compound.getString("teamId");
+        fullDepletionSent = compound.getBoolean("fullDepletionSent");
 
         NBTTagCompound revisions = compound.getCompoundTag("revisions");
         for (String key : revisions.func_150296_c()) {
@@ -71,6 +77,7 @@ public class ClientRevision {
         NBTTagCompound compound = new NBTTagCompound();
 
         compound.setString("teamId", teamId);
+        compound.setBoolean("fullDepletionSent", fullDepletionSent);
         NBTTagCompound revisions = new NBTTagCompound();
         for (int dim : dimRevision.keySet()) {
             revisions.setLong(Integer.toString(dim), dimRevision.get(dim));
@@ -85,6 +92,10 @@ public class ClientRevision {
             int dim = Minecraft.getMinecraft().thePlayer.dimension;
             updateRevision(pendingRevision.left(), dim, pendingRevision.rightLong());
             pendingRevision = null;
+        }
+
+        if (!fullDepletionSent) {
+            sendFullDepletion();
         }
     }
 
@@ -141,6 +152,44 @@ public class ClientRevision {
         }
     }
 
+    public static void sendFullDepletion() {
+        if (fullDepletionSent) return;
+        fullDepletionSent = true;
+        for (Map.Entry<Integer, DimensionCache> entry : clientCacheDims.entrySet()) {
+            DimensionCache cache = entry.getValue();
+            if (cache == null) continue;
+            Long2BooleanMap depletedVeins = new Long2BooleanOpenHashMap();
+            for (OreVeinPosition vein : cache.getAllOreVeins()) {
+                if (vein.isDepleted()) {
+                    depletedVeins.put(RevisionUtil.getOreVeinKey(vein.chunkX, vein.chunkZ), true);
+                }
+            }
+
+            new MessageSendDepleted(entry.getKey(), depletedVeins).sendToServer();
+        }
+    }
+
+    public static void updateDepletions(int dim, LongList depletedVeins) {
+        DimensionCache cache = clientCacheDims.get(dim);
+        if (cache == null) return;
+        for (OreVeinPosition vein : cache.getAllOreVeins()) {
+            boolean isDepleted = depletedVeins.contains(RevisionUtil.getOreVeinKey(vein.chunkX, vein.chunkZ));
+            if (vein.isDepleted() != isDepleted) {
+                vein.toggleDepleted();
+            }
+        }
+    }
+
+    public static void setDepleted(int dim, long position, boolean isDepleted) {
+        DimensionCache cache = clientCacheDims.get(dim);
+        if (cache == null) return;
+        OreVeinPosition vein = cache.getOreVein(CoordinatePacker.unpackX(position), CoordinatePacker.unpackZ(position));
+        if (vein == OreVeinPosition.EMPTY_VEIN) return;
+        if (vein.isDepleted() != isDepleted) {
+            vein.toggleDepleted();
+        }
+    }
+
     private static List<LongList> partitionList(LongList list, int chunkSize) {
         List<LongList> chunkList = new ArrayList<>();
         for (int i = 0; i < list.size(); i += chunkSize) {
@@ -153,6 +202,7 @@ public class ClientRevision {
     public static void reset() {
         saveRevisionData();
         dimRevision.clear();
+        fullDepletionSent = false;
     }
 
     @SubscribeEvent

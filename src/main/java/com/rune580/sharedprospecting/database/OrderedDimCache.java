@@ -22,11 +22,14 @@ import it.unimi.dsi.fastutil.longs.LongArrayList;
 import it.unimi.dsi.fastutil.longs.LongList;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
+import lombok.Getter;
 
 public class OrderedDimCache {
 
     private final LongList oreVeins = new LongArrayList();
     private final LongList undergroundFluids = new LongArrayList();
+    @Getter
+    private final LongList depletedVeins = new LongArrayList();
     public final int dimension;
 
     public OrderedDimCache(int dim) {
@@ -37,12 +40,14 @@ public class OrderedDimCache {
         NBTTagCompound dimCompound = new NBTTagCompound();
         dimCompound.setTag("oreList", saveList(oreVeins));
         dimCompound.setTag("fluidList", saveList(undergroundFluids));
+        dimCompound.setTag("depletedVeins", saveList(depletedVeins));
         return dimCompound;
     }
 
     public void load(NBTTagCompound compound) {
         readOres(compound);
         readFluids(compound);
+        readLongList(depletedVeins, "depletedVeins", compound);
     }
 
     public boolean putOreVein(long veinPos) {
@@ -107,10 +112,7 @@ public class OrderedDimCache {
             return;
         }
 
-        NBTTagList oreList = compound.getTagList("oreList", Constants.NBT.TAG_LONG);
-        for (Object obj : oreList.tagList) {
-            oreVeins.add(((NBTTagLong) obj).func_150291_c());
-        }
+        readLongList(oreVeins, "oreList", compound);
     }
 
     private void readFluids(NBTTagCompound compound) {
@@ -120,10 +122,13 @@ public class OrderedDimCache {
             return;
         }
 
-        NBTTagList fluidList = compound.getTagList("fluidList", Constants.NBT.TAG_LONG);
+        readLongList(undergroundFluids, "fluidList", compound);
+    }
 
-        for (Object obj : fluidList.tagList) {
-            undergroundFluids.add(((NBTTagLong) obj).func_150291_c());
+    private static void readLongList(LongList list, String tag, NBTTagCompound compound) {
+        NBTTagList tagList = compound.getTagList(tag, Constants.NBT.TAG_LONG);
+        for (Object obj : tagList.tagList) {
+            list.add(((NBTTagLong) obj).func_150291_c());
         }
     }
 

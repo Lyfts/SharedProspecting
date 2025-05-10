@@ -15,6 +15,7 @@ import cpw.mods.fml.common.event.FMLServerStoppingEvent;
     modid = SharedProspectingMod.MOD_ID,
     version = Tokens.VERSION,
     name = SharedProspectingMod.MOD_NAME,
+    acceptableRemoteVersions = "*",
     acceptedMinecraftVersions = "[1.7.10]",
     dependencies = "required-after:visualprospecting;" + "required-after:serverutilities;"
         + "required-after:gtnhlib@[0.5.14,);")
