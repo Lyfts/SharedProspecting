@@ -30,7 +30,11 @@ public enum Mixins {
     WORLD_CACHE_ACCESSOR(new Builder("WorldCache Accessor").setSide(Side.BOTH)
         .addTargetedMod(TargetedMod.VISUAL_PROSPECTING)
         .setPhase(Phase.LATE)
-        .addMixinClasses("visualprospecting.WorldCacheAccessor"));
+        .addMixinClasses("visualprospecting.WorldCacheAccessor")),
+    SHARE_DEPLETED_VEINS(new Builder("Share depleted veins").setSide(Side.CLIENT)
+        .addTargetedMod(TargetedMod.VISUAL_PROSPECTING)
+        .setPhase(Phase.LATE)
+        .addMixinClasses("visualprospecting.MixinOreVeinPosition")),;
 
     private final List<String> mixinClasses;
     private final Supplier<Boolean> applyIf;
