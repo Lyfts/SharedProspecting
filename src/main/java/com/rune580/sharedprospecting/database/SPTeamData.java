@@ -36,6 +36,7 @@ import it.unimi.dsi.fastutil.ints.IntSet;
 import it.unimi.dsi.fastutil.ints.IntSets;
 import it.unimi.dsi.fastutil.longs.Long2BooleanMap;
 import it.unimi.dsi.fastutil.longs.LongList;
+import lombok.Getter;
 import serverutils.events.team.ForgeTeamDataEvent;
 import serverutils.events.team.ForgeTeamDeletedEvent;
 import serverutils.events.team.ForgeTeamLoadedEvent;
@@ -52,6 +53,7 @@ import serverutils.lib.util.NBTUtils;
 @EventBusSubscriber
 public class SPTeamData extends TeamData {
 
+    @Getter
     private final Int2ObjectMap<OrderedDimCache> dimensions = new Int2ObjectOpenHashMap<>();
 
     public SPTeamData(ForgeTeam team) {
@@ -97,10 +99,6 @@ public class SPTeamData extends TeamData {
     @Override
     public String getId() {
         return SharedProspectingMod.MOD_ID;
-    }
-
-    public Int2ObjectMap<OrderedDimCache> getDimensions() {
-        return dimensions;
     }
 
     public void sendUpdate(EntityPlayerMP player, long playerRevision) {
@@ -254,14 +252,22 @@ public class SPTeamData extends TeamData {
 
     public static void updatePlayer(EntityPlayerMP player) {
         SPTeamData data = SPTeamData.get(player);
-        if (data == null) return;
+        if (data == null) {
+            clearClientRevision(player);
+            return;
+        }
+
         data.updateMemberRevision(player);
+    }
+
+    private static void clearClientRevision(@Nullable EntityPlayerMP player) {
+        if (player == null) return;
+        new MessageUpdateRevision("", 0, 0).sendTo(player);
     }
 
     @SubscribeEvent
     public static void onTeamLoaded(ForgeTeamLoadedEvent event) {
         ForgeTeam team = event.getTeam();
-        SharedProspectingMod.LOG.info("Team {} loaded", team.getUIDCode());
 
         NBTTagCompound nbt = NBTUtils.readNBT(team.getDataFile(SharedProspectingMod.MOD_ID));
         SPTeamData.get(team)
@@ -278,9 +284,9 @@ public class SPTeamData extends TeamData {
 
     @SubscribeEvent
     public static void onTeamPlayerLeft(ForgeTeamPlayerLeftEvent event) {
-        EntityPlayerMP player = event.getPlayer()
-            .getPlayer();
-        new MessageUpdateRevision("", 0, 0).sendTo(player);
+        clearClientRevision(
+            event.getPlayer()
+                .getNullablePlayer());
     }
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
